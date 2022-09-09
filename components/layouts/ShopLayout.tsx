@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react';
 import Head from 'next/head';
 
-import { Navbar } from '../ui';
+import { Navbar, SideMenu } from '../ui';
 
 interface Props {
   children: ReactNode;
@@ -21,13 +21,17 @@ export const ShopLayout: FC<Props> = ({ children, title, pageDescription, imageF
         <meta name='og:description' content={pageDescription} />
         {imageFullUrl && <meta name='og:image' content={imageFullUrl} />}
       </Head>
+
       <nav>
         <Navbar />
       </nav>
-      {/* TODO: Sidebar */}
+
+      <SideMenu />
+
       <main style={{ margin: '80px auto', maxWidth: '1440px', padding: '0px 30px' }}>
         {children}
       </main>
+
       <footer>{/*TODO: Custom Footer */}</footer>
     </>
   );
