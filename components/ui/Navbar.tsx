@@ -23,13 +23,13 @@ export const Navbar = () => {
             </Link>
           </NextLink>
 
-          <NextLink href='/category/men' passHref>
+          <NextLink href='/category/women' passHref>
             <Link>
               <Button>Women</Button>
             </Link>
           </NextLink>
 
-          <NextLink href='/category/men' passHref>
+          <NextLink href='/category/kids' passHref>
             <Link>
               <Button>Kids</Button>
             </Link>
