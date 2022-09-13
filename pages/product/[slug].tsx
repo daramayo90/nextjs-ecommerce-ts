@@ -1,13 +1,24 @@
-import { Button, Chip, Grid, Typography } from '@mui/material';
+import { FC } from 'react';
+import { GetStaticPaths } from 'next';
+import { GetStaticProps } from 'next';
+
+import { Button, Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
+
+import { IProduct } from '../../interfaces';
 import { ShopLayout } from '../../components/layouts';
 import { ProductSlideshow, SizeSelector } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
-import { initialData } from '../../database/products';
+import { dbProducts } from '../../database';
 
-const product = initialData.products[0];
+interface Props {
+  product: IProduct;
+}
 
-const ProductPage = () => {
+const ProductPage: FC<Props> = ({ product }) => {
+  // const router = useRouter();
+  // const { products: product, isLoading } = useProducts(`/products/${router.query.slug}`);
+
   return (
     <ShopLayout title={product.title} pageDescription={product.description}>
       <Grid container spacing={3}>
@@ -51,5 +62,61 @@ const ProductPage = () => {
     </ShopLayout>
   );
 };
+
+export const getStaticPaths: GetStaticPaths = async (ctx) => {
+  const slugs = await dbProducts.getAllProductSlug();
+
+  return {
+    paths: slugs.map(({ slug }) => ({
+      params: { slug },
+    })),
+    fallback: 'blocking',
+  };
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const { slug = '' } = params as { slug: string };
+
+  const product = await dbProducts.getProductBySlug(slug);
+
+  if (!product) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      product,
+    },
+    revalidate: 86400, // Incremental Static Regeneration (ISR) - 24hs
+  };
+};
+
+/* Do not use ServerS ide Rendering
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const { slug = '' } = params as { slug: string };
+
+  const product = await dbProducts.getProductBySlug(slug);
+
+  if (!product) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      product,
+    },
+  };
+};
+*/
 
 export default ProductPage;
