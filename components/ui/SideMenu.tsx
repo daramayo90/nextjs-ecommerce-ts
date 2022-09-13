@@ -1,3 +1,7 @@
+import { useContext } from 'react';
+import { UIContext } from '../../context';
+import { useRouter } from 'next/router';
+
 import {
   Box,
   Divider,
@@ -11,6 +15,7 @@ import {
   ListItemText,
   ListSubheader,
 } from '@mui/material';
+
 import {
   AccountCircleOutlined,
   AdminPanelSettings,
@@ -25,9 +30,19 @@ import {
 } from '@mui/icons-material';
 
 export const SideMenu = () => {
+  const { isMenuOpen, toggleSideMenu } = useContext(UIContext);
+
+  const router = useRouter();
+
+  const navigateTo = (url: string) => {
+    toggleSideMenu();
+    router.push(url);
+  };
+
   return (
     <Drawer
-      open={false}
+      open={isMenuOpen}
+      onClose={toggleSideMenu}
       anchor='right'
       sx={{ backdropFilter: 'blur(4px)', transition: 'all 0.5s ease-out' }}>
       <Box sx={{ width: 250, paddingTop: 5 }}>
@@ -50,49 +65,49 @@ export const SideMenu = () => {
             <ListItemIcon>
               <AccountCircleOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Perfil'} />
+            <ListItemText primary={'My Profile'} />
           </ListItem>
 
           <ListItem button>
             <ListItemIcon>
               <ConfirmationNumberOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Mis Ordenes'} />
+            <ListItemText primary={'My Orders'} />
           </ListItem>
 
           <ListItem button sx={{ display: { xs: '', sm: 'none' } }}>
             <ListItemIcon>
               <MaleOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Hombres'} />
+            <ListItemText primary={'Men'} onClick={() => navigateTo('/category/men')} />
           </ListItem>
 
           <ListItem button sx={{ display: { xs: '', sm: 'none' } }}>
             <ListItemIcon>
               <FemaleOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Mujeres'} />
+            <ListItemText primary={'Women'} onClick={() => navigateTo('/category/women')} />
           </ListItem>
 
           <ListItem button sx={{ display: { xs: '', sm: 'none' } }}>
             <ListItemIcon>
               <EscalatorWarningOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Niños'} />
+            <ListItemText primary={'Kids'} onClick={() => navigateTo('/category/kids')} />
           </ListItem>
 
           <ListItem button>
             <ListItemIcon>
               <VpnKeyOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Ingresar'} />
+            <ListItemText primary={'Login'} />
           </ListItem>
 
           <ListItem button>
             <ListItemIcon>
               <LoginOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Salir'} />
+            <ListItemText primary={'Log out'} />
           </ListItem>
 
           {/* Admin */}
@@ -103,20 +118,20 @@ export const SideMenu = () => {
             <ListItemIcon>
               <CategoryOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Productos'} />
+            <ListItemText primary={'Products'} />
           </ListItem>
           <ListItem button>
             <ListItemIcon>
               <ConfirmationNumberOutlined />
             </ListItemIcon>
-            <ListItemText primary={'Ordenes'} />
+            <ListItemText primary={'Orders'} />
           </ListItem>
 
           <ListItem button>
             <ListItemIcon>
               <AdminPanelSettings />
             </ListItemIcon>
-            <ListItemText primary={'Usuarios'} />
+            <ListItemText primary={'Users'} />
           </ListItem>
         </List>
       </Box>
