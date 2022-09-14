@@ -1,23 +1,39 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { GetStaticPaths } from 'next';
 import { GetStaticProps } from 'next';
 
 import { Button, Grid, Typography, Chip } from '@mui/material';
 import { Box } from '@mui/system';
 
-import { IProduct } from '../../interfaces';
+import { dbProducts } from '../../database';
+import { ICartProduct, IProduct, ISize } from '../../interfaces';
+
 import { ShopLayout } from '../../components/layouts';
 import { ProductSlideshow, SizeSelector } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
-import { dbProducts } from '../../database';
 
 interface Props {
   product: IProduct;
 }
 
 const ProductPage: FC<Props> = ({ product }) => {
-  // const router = useRouter();
-  // const { products: product, isLoading } = useProducts(`/products/${router.query.slug}`);
+  const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
+    _id: product._id,
+    images: product.images[0],
+    price: product.price,
+    size: undefined,
+    slug: product.slug,
+    title: product.title,
+    gender: product.gender,
+    quantity: 1,
+  });
+
+  const onSelectedSize = (size: ISize) => {
+    setTempCartProduct((currentProduct) => ({
+      ...currentProduct,
+      size,
+    }));
+  };
 
   return (
     <ShopLayout title={product.title} pageDescription={product.description}>
@@ -40,14 +56,21 @@ const ProductPage: FC<Props> = ({ product }) => {
             {/* Quantity */}
             <Box sx={{ my: 2 }}>
               <Typography variant='subtitle2'>Quantity</Typography>
+
               <ItemCounter />
-              <SizeSelector selectedSize={product.sizes[2]} sizes={product.sizes} />
+
+              <SizeSelector
+                selectedSize={tempCartProduct.size}
+                sizes={product.sizes}
+                // onSelectedSize={(size) => onSelectedSize(size)}
+                onSelectedSize={onSelectedSize}
+              />
             </Box>
 
             {/* Add to cart */}
             {product.inStock > 0 ? (
               <Button color='secondary' className='circular-btn'>
-                Add to Cart
+                {tempCartProduct.size ? 'Add to Cart' : 'Select a size'}
               </Button>
             ) : (
               <Chip color='error' label='Out of stock' variant='outlined' />
