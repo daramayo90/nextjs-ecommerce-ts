@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { GetStaticPaths } from 'next';
 import { GetStaticProps } from 'next';
 
-import { Button, Grid, Typography } from '@mui/material';
+import { Button, Grid, Typography, Chip } from '@mui/material';
 import { Box } from '@mui/system';
 
 import { IProduct } from '../../interfaces';
@@ -45,11 +45,13 @@ const ProductPage: FC<Props> = ({ product }) => {
             </Box>
 
             {/* Add to cart */}
-            <Button color='secondary' className='circular-btn'>
-              Add to Cart
-            </Button>
-
-            {/* <Chip label='No availables' color='error' variant='outlined' /> */}
+            {product.inStock > 0 ? (
+              <Button color='secondary' className='circular-btn'>
+                Add to Cart
+              </Button>
+            ) : (
+              <Chip color='error' label='Out of stock' variant='outlined' />
+            )}
 
             {/* Description */}
             <Box sx={{ mt: 3 }}>
