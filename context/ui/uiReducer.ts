@@ -1,4 +1,4 @@
-import { UIState } from './';
+import { UIState } from '.';
 
 type UIActionType = { type: '[UI] - ToggleMenu' };
 

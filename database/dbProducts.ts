@@ -27,3 +27,28 @@ export const getAllProductSlug = async (): Promise<ProductSlug[]> => {
 
   return slugs;
 };
+
+export const getProductsByTerm = async (searchTerm: string): Promise<IProduct[]> => {
+  searchTerm = searchTerm.toString().toLowerCase();
+
+  await db.connect();
+
+  /** models: 'productSchema.index({ title: 'text', tags: 'text' });'*/
+  const products = await Product.find({ $text: { $search: searchTerm } })
+    .select('title images price inStock slug -_id')
+    .lean();
+
+  await db.disconnect();
+
+  return products;
+};
+
+export const getAllProducts = async (): Promise<IProduct[]> => {
+  await db.connect();
+
+  const products = await Product.find().lean();
+
+  await db.disconnect();
+
+  return JSON.parse(JSON.stringify(products));
+};

@@ -1,5 +1,5 @@
 import { FC, ReactNode, useReducer } from 'react';
-import { UIContext, uiReducer } from './';
+import { UIContext, uiReducer } from '.';
 
 interface Props {
   children: ReactNode;
