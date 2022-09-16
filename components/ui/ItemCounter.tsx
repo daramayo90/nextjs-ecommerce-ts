@@ -17,7 +17,7 @@ export const ItemCounter: FC<Props> = ({ currentValue, updatedQuantity, maxValue
     }
 
     if (currentValue >= maxValue) return;
-    updatedQuantity(currentValue + 1);
+    return updatedQuantity(currentValue + 1);
   };
 
   return (

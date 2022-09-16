@@ -1,6 +1,6 @@
-import { FC, useState } from 'react';
-import { GetStaticPaths } from 'next';
-import { GetStaticProps } from 'next';
+import { FC, useState, useContext } from 'react';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
 
 import { Button, Grid, Typography, Chip } from '@mui/material';
 import { Box } from '@mui/system';
@@ -8,6 +8,7 @@ import { Box } from '@mui/system';
 import { dbProducts } from '../../database';
 import { ICartProduct, IProduct, ISize } from '../../interfaces';
 
+import { CartContext } from '../../context';
 import { ShopLayout } from '../../components/layouts';
 import { ProductSlideshow, SizeSelector } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
@@ -17,6 +18,10 @@ interface Props {
 }
 
 const ProductPage: FC<Props> = ({ product }) => {
+  const { addProductToCart } = useContext(CartContext);
+
+  const router = useRouter();
+
   const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
     _id: product._id,
     images: product.images[0],
@@ -43,7 +48,11 @@ const ProductPage: FC<Props> = ({ product }) => {
   };
 
   const onAddProduct = () => {
-    console.log({ tempCartProduct });
+    if (!tempCartProduct.size) return;
+
+    addProductToCart(tempCartProduct);
+
+    // router.push('/cart');
   };
 
   return (
