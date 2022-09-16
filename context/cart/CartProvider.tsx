@@ -48,7 +48,20 @@ export const CartProvider: FC<Props> = ({ children }) => {
     return dispatch({ type: '[Cart] - Update Products', payload: updatedProducts });
   };
 
+  const updateCartQuantity = (product: ICartProduct) => {
+    const products = state.cart.map((p) => {
+      if (p._id !== product._id) return p;
+      if (p.size !== product.size) return p;
+
+      return product;
+    });
+
+    dispatch({ type: '[Cart] - Update Quantity', payload: products });
+  };
+
   return (
-    <CartContext.Provider value={{ ...state, addProductToCart }}>{children}</CartContext.Provider>
+    <CartContext.Provider value={{ ...state, addProductToCart, updateCartQuantity }}>
+      {children}
+    </CartContext.Provider>
   );
 };

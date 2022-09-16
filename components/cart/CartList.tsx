@@ -6,20 +6,27 @@ import { Box, Button, CardActionArea, CardMedia, Grid, Link, Typography } from '
 import { CartContext } from '../../context/cart/CartContext';
 
 import { ItemCounter } from '../ui';
+import { ICartProduct } from '../../interfaces';
 
 interface Props {
   editable?: boolean;
 }
 
 export const CartList: FC<Props> = ({ editable = false }) => {
-  const { cart } = useContext(CartContext);
+  const { cart, updateCartQuantity } = useContext(CartContext);
+
+  const onNewCartQuantityValue = (product: ICartProduct, newQuantityValue: number) => {
+    product.quantity = newQuantityValue;
+    updateCartQuantity(product);
+  };
 
   return (
     <>
+      {/* TODO: Order los productos por id */}
       {cart.map((product) => (
-        <Grid key={product.slug} container spacing={2} sx={{ mb: 1 }}>
+        <Grid key={product.slug + product.size} container spacing={2} sx={{ mb: 1 }}>
           <Grid item xs={3}>
-            <NextLink href='/product/slug' passHref>
+            <NextLink href={`/product/${product.slug}`} passHref>
               <Link>
                 <CardActionArea>
                   <CardMedia
@@ -44,7 +51,7 @@ export const CartList: FC<Props> = ({ editable = false }) => {
                 <ItemCounter
                   currentValue={product.quantity}
                   maxValue={10} // TODO: Poner el valor del backend
-                  updatedQuantity={() => {}}
+                  updatedQuantity={(newValue) => onNewCartQuantityValue(product, newValue)}
                 />
               ) : (
                 <Typography variant='h6'>
