@@ -1,29 +1,29 @@
+import { FC, useContext } from 'react';
 import NextLink from 'next/link';
 
 import { Box, Button, CardActionArea, CardMedia, Grid, Link, Typography } from '@mui/material';
 
-import { initialData } from '../../database/products';
-import { ItemCounter } from '../ui';
-import { FC } from 'react';
+import { CartContext } from '../../context/cart/CartContext';
 
-const productsInCart = [initialData.products[0], initialData.products[1], initialData.products[2]];
+import { ItemCounter } from '../ui';
 
 interface Props {
   editable?: boolean;
 }
 
 export const CartList: FC<Props> = ({ editable = false }) => {
+  const { cart } = useContext(CartContext);
+
   return (
     <>
-      {productsInCart.map((product) => (
+      {cart.map((product) => (
         <Grid key={product.slug} container spacing={2} sx={{ mb: 1 }}>
           <Grid item xs={3}>
-            {/* TODO: Llevar a la página del producto */}
             <NextLink href='/product/slug' passHref>
               <Link>
                 <CardActionArea>
                   <CardMedia
-                    image={`/products/${product.images[0]}`}
+                    image={`/products/${product.images}`}
                     component='img'
                     sx={{ borderRadius: '5px' }}
                   />
@@ -36,11 +36,21 @@ export const CartList: FC<Props> = ({ editable = false }) => {
             <Box display='flex' flexDirection='column'>
               <Typography variant='body1'>{product.title}</Typography>
               <Typography variant='body1'>
-                Size: <strong>M</strong>
+                Size: <strong>{product.size}</strong>
               </Typography>
 
               {/* Conditional */}
-              {editable ? <ItemCounter /> : <Typography variant='h6'>3 items</Typography>}
+              {editable ? (
+                <ItemCounter
+                  currentValue={product.quantity}
+                  maxValue={10} // TODO: Poner el valor del backend
+                  updatedQuantity={() => {}}
+                />
+              ) : (
+                <Typography variant='h6'>
+                  {product.quantity} {product.quantity > 1 ? 'items' : 'item'}
+                </Typography>
+              )}
             </Box>
           </Grid>
 
