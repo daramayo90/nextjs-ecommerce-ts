@@ -4,7 +4,8 @@ import { CartState } from './';
 type CartActionType =
   | { type: '[Cart] - LoadCart from cookies'; payload: ICartProduct[] }
   | { type: '[Cart] - Update Products'; payload: ICartProduct[] }
-  | { type: '[Cart] - Update Quantity'; payload: ICartProduct[] };
+  | { type: '[Cart] - Update Quantity'; payload: ICartProduct[] }
+  | { type: '[Cart] - Remove Product'; payload: ICartProduct[] };
 
 export const cartReducer = (state: CartState, action: CartActionType): CartState => {
   switch (action.type) {
@@ -24,6 +25,12 @@ export const cartReducer = (state: CartState, action: CartActionType): CartState
       return {
         ...state,
         cart: [...action.payload],
+      };
+
+    case '[Cart] - Remove Product':
+      return {
+        ...state,
+        cart: action.payload,
       };
 
     default:
