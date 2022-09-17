@@ -1,4 +1,6 @@
 import { FC, ReactNode, useReducer, useEffect } from 'react';
+import { useRouter } from 'next/router';
+
 import Cookies from 'js-cookie';
 import axios, { AxiosError } from 'axios';
 
@@ -21,22 +23,23 @@ const AUTH_INITIAL_STATE: AuthState = {
 
 export const AuthProvider: FC<Props> = ({ children }) => {
    const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE);
+   const router = useRouter();
 
    useEffect(() => {
       checkToken();
    }, []);
 
-   const checkToken = async (): Promise<boolean> => {
+   const checkToken = async () => {
+      if (!Cookies.get('token')) return;
+
       try {
          const { data } = await frontApi.get('/user/validate-token');
          const { token, user } = data;
          Cookies.set('token', token);
          dispatch({ type: '[Auth] - Login', payload: user });
-         return true;
       } catch (error) {
          console.log(error);
          Cookies.remove('token');
-         return false;
       }
    };
 
@@ -83,8 +86,14 @@ export const AuthProvider: FC<Props> = ({ children }) => {
       }
    };
 
+   const logout = () => {
+      Cookies.remove('token');
+      Cookies.remove('cart');
+      router.reload(); // refresh of the whole application - loose all the context states (auth, cart, ui)
+   };
+
    return (
-      <AuthContext.Provider value={{ ...state, loginUser, registerUser, checkToken }}>
+      <AuthContext.Provider value={{ ...state, checkToken, loginUser, registerUser, logout }}>
          {children}
       </AuthContext.Provider>
    );

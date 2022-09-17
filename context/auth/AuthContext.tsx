@@ -4,8 +4,9 @@ import { IUser } from '../../interfaces';
 interface ContextProps {
    isLoggedIn: boolean;
    user?: IUser;
-   checkToken: () => Promise<boolean>;
+   checkToken: () => void;
    loginUser: (email: string, password: string) => Promise<boolean>;
+   logout: () => void;
    registerUser: (
       name: string,
       email: string,
