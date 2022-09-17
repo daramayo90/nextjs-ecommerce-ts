@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import NextLink from 'next/link';
 
-import { Box, Button, Grid, Link, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
+
 import { useForm } from 'react-hook-form';
 
-import { AuthLayout } from '../../components/layouts';
+import { frontApi } from '../../api';
 import { validations } from '../../utils';
+import { AuthLayout } from '../../components/layouts';
 
 type FormData = {
   email: string;
@@ -18,8 +22,21 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<FormData>();
 
-  const onLoginUser = (data: FormData) => {
-    console.log({ data });
+  const [showError, setShowError] = useState(false);
+
+  const onLoginUser = async ({ email, password }: FormData) => {
+    setShowError(false);
+
+    try {
+      const { data } = await frontApi.post('/user/login', { email, password });
+      const { token, user } = data;
+    } catch (error) {
+      console.log('Credentials error');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 3500);
+    }
+
+    // TODO: Navegar a la pantalla que el usuario estaba
   };
 
   return (
@@ -31,6 +48,13 @@ const LoginPage = () => {
               <Typography variant='h1' component='h1'>
                 Log In
               </Typography>
+              <Chip
+                className='fadeIn'
+                color='error'
+                icon={<ErrorOutline />}
+                label='Not valid email or password'
+                sx={{ display: showError ? 'flex' : 'none' }}
+              />
             </Grid>
 
             <Grid item xs={12}>
