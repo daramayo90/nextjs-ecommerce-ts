@@ -4,6 +4,7 @@ import { Box, Button, Grid, Link, TextField, Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 
 import { AuthLayout } from '../../components/layouts';
+import { validations } from '../../utils';
 
 type FormData = {
   email: string;
@@ -23,7 +24,7 @@ const LoginPage = () => {
 
   return (
     <AuthLayout title={'Login'}>
-      <form onSubmit={handleSubmit(onLoginUser)}>
+      <form onSubmit={handleSubmit(onLoginUser)} noValidate>
         <Box sx={{ width: 350, padding: '10px 20px' }}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -38,7 +39,12 @@ const LoginPage = () => {
                 label='Mail'
                 variant='filled'
                 fullWidth
-                {...register('email')}
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                {...register('email', {
+                  required: 'Required field',
+                  validate: validations.isEmail,
+                })}
               />
             </Grid>
 
@@ -48,7 +54,12 @@ const LoginPage = () => {
                 type='password'
                 variant='filled'
                 fullWidth
-                {...register('password')}
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                {...register('password', {
+                  required: 'Required field',
+                  minLength: { value: 6, message: '6 characteres minimum' },
+                })}
               />
             </Grid>
 
