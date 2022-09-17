@@ -40,7 +40,6 @@ const RegisterPage = () => {
          return;
       }
 
-      // TODO: navegar a la pantalla que el usuario estaba
       router.replace('/');
    };
 
