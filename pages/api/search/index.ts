@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 type Data = {
-  message: string;
+   message: string;
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  res.status(400).json({ message: 'Must to specify the query' });
+   res.status(400).json({ message: 'Must to specify the query' });
 }

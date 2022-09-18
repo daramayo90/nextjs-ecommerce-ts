@@ -6,51 +6,51 @@ import { User } from '../../../models';
 import { jwt } from '../../../utils';
 
 type Data =
-  | { message: string }
-  | {
-      token: string;
-      user: {
-        email: string;
-        name: string;
-        role: string;
-      };
-    };
+   | { message: string }
+   | {
+        token: string;
+        user: {
+           email: string;
+           name: string;
+           role: string;
+        };
+     };
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  switch (req.method) {
-    case 'GET':
-      return checkJWT(req, res);
+   switch (req.method) {
+      case 'GET':
+         return checkJWT(req, res);
 
-    default:
-      res.status(400).json({ message: 'Bad request' });
-  }
+      default:
+         res.status(400).json({ message: 'Bad request' });
+   }
 }
 
 const checkJWT = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
-  const { token = '' } = req.cookies;
+   const { token = '' } = req.cookies;
 
-  let userId = '';
+   let userId = '';
 
-  try {
-    userId = await jwt.isValidToken(token);
-  } catch (error) {
-    return res.status(401).json({ message: 'Auth Token not valid' });
-  }
+   try {
+      userId = await jwt.isValidToken(token);
+   } catch (error) {
+      return res.status(401).json({ message: 'Auth Token not valid' });
+   }
 
-  await db.connect();
+   await db.connect();
 
-  const user = await User.findById(userId).lean();
+   const user = await User.findById(userId).lean();
 
-  await db.disconnect();
+   await db.disconnect();
 
-  if (!user) {
-    return res.status(400).json({ message: 'There is no user with that id' });
-  }
+   if (!user) {
+      return res.status(400).json({ message: 'There is no user with that id' });
+   }
 
-  const { _id, email, role, name } = user;
+   const { _id, email, role, name } = user;
 
-  return res.status(200).json({
-    token: jwt.signToken(_id, email),
-    user: { email, role, name },
-  });
+   return res.status(200).json({
+      token: jwt.signToken(_id, email),
+      user: { email, role, name },
+   });
 };

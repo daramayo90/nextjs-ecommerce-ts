@@ -1,12 +1,14 @@
 import { FC, ReactNode, useEffect, useReducer } from 'react';
 import Cookie from 'js-cookie';
 
-import { ICartProduct, ShippingAddress } from '../../interfaces';
+import { ICartProduct, IOrder, ShippingAddress } from '../../interfaces';
 import { CartContext, cartReducer } from './';
+import { frontApi } from '../../api';
 
 interface Props {
    children: ReactNode;
 }
+
 export interface CartState {
    isLoaded: boolean;
    cart: ICartProduct[];
@@ -14,6 +16,7 @@ export interface CartState {
    subTotal: number;
    tax: number;
    total: number;
+
    shippingAddress?: ShippingAddress;
 }
 
@@ -127,6 +130,32 @@ export const CartProvider: FC<Props> = ({ children }) => {
       dispatch({ type: '[Cart] - Update Shipping Address', payload: address });
    };
 
+   const createOrder = async () => {
+      if (!state.shippingAddress) {
+         throw new Error('Shipping address is missing');
+      }
+
+      const body: IOrder = {
+         orderItems: state.cart.map((p) => ({
+            ...p,
+            size: p.size!,
+         })),
+         shippingAddress: state.shippingAddress,
+         numberOfItems: state.numberOfItems,
+         subTotal: state.subTotal,
+         tax: state.tax,
+         total: state.total,
+         isPaid: false,
+      };
+
+      try {
+         const { data } = await frontApi.post('/orders', body);
+         console.log({ data });
+      } catch (error) {
+         console.log(error);
+      }
+   };
+
    return (
       <CartContext.Provider
          value={{
@@ -135,6 +164,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
             updateCartQuantity,
             removeCartProduct,
             updateAddress,
+            createOrder,
          }}>
          {children}
       </CartContext.Provider>

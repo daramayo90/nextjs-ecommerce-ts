@@ -1,6 +1,5 @@
 import { FC, useState, useContext } from 'react';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { useRouter } from 'next/router';
 
 import { Button, Grid, Typography, Chip } from '@mui/material';
 import { Box } from '@mui/system';
@@ -14,135 +13,133 @@ import { ProductSlideshow, SizeSelector } from '../../components/products';
 import { ItemCounter } from '../../components/ui';
 
 interface Props {
-  product: IProduct;
+   product: IProduct;
 }
 
 const ProductPage: FC<Props> = ({ product }) => {
-  const { addProductToCart } = useContext(CartContext);
+   const { addProductToCart } = useContext(CartContext);
 
-  const router = useRouter();
+   const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
+      _id: product._id,
+      image: product.images[0],
+      price: product.price,
+      size: undefined,
+      slug: product.slug,
+      title: product.title,
+      gender: product.gender,
+      quantity: 1,
+   });
 
-  const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
-    _id: product._id,
-    images: product.images[0],
-    price: product.price,
-    size: undefined,
-    slug: product.slug,
-    title: product.title,
-    gender: product.gender,
-    quantity: 1,
-  });
+   const onSelectedSize = (size: ISize) => {
+      setTempCartProduct((currentProduct) => ({
+         ...currentProduct,
+         size,
+      }));
+   };
 
-  const onSelectedSize = (size: ISize) => {
-    setTempCartProduct((currentProduct) => ({
-      ...currentProduct,
-      size,
-    }));
-  };
+   const onUpdatedQuantity = (quantity: number) => {
+      setTempCartProduct((currentProduct) => ({
+         ...currentProduct,
+         quantity,
+      }));
+   };
 
-  const onUpdatedQuantity = (quantity: number) => {
-    setTempCartProduct((currentProduct) => ({
-      ...currentProduct,
-      quantity,
-    }));
-  };
+   const onAddProduct = () => {
+      if (!tempCartProduct.size) return;
 
-  const onAddProduct = () => {
-    if (!tempCartProduct.size) return;
+      addProductToCart(tempCartProduct);
 
-    addProductToCart(tempCartProduct);
+      // router.push('/cart');
+   };
 
-    // router.push('/cart');
-  };
+   return (
+      <ShopLayout title={product.title} pageDescription={product.description}>
+         <Grid container spacing={3}>
+            <Grid item xs={12} sm={7}>
+               <ProductSlideshow images={product.images} />
+            </Grid>
 
-  return (
-    <ShopLayout title={product.title} pageDescription={product.description}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={7}>
-          <ProductSlideshow images={product.images} />
-        </Grid>
+            <Grid item xs={12} sm={5}>
+               <Box display='flex' flexDirection='column'>
+                  {/* Titles */}
+                  <Typography variant='h1' component='h1'>
+                     {product.title}
+                  </Typography>
 
-        <Grid item xs={12} sm={5}>
-          <Box display='flex' flexDirection='column'>
-            {/* Titles */}
-            <Typography variant='h1' component='h1'>
-              {product.title}
-            </Typography>
+                  <Typography variant='subtitle1' component='h2'>
+                     ${product.price}
+                  </Typography>
 
-            <Typography variant='subtitle1' component='h2'>
-              ${product.price}
-            </Typography>
+                  {/* Quantity */}
+                  <Box sx={{ my: 2 }}>
+                     <Typography variant='subtitle2'>Quantity</Typography>
 
-            {/* Quantity */}
-            <Box sx={{ my: 2 }}>
-              <Typography variant='subtitle2'>Quantity</Typography>
+                     <ItemCounter
+                        currentValue={tempCartProduct.quantity}
+                        updatedQuantity={onUpdatedQuantity}
+                        maxValue={product.inStock}
+                     />
 
-              <ItemCounter
-                currentValue={tempCartProduct.quantity}
-                updatedQuantity={onUpdatedQuantity}
-                maxValue={product.inStock}
-              />
+                     <SizeSelector
+                        selectedSize={tempCartProduct.size}
+                        sizes={product.sizes}
+                        // onSelectedSize={(size) => onSelectedSize(size)}
+                        onSelectedSize={onSelectedSize}
+                     />
+                  </Box>
 
-              <SizeSelector
-                selectedSize={tempCartProduct.size}
-                sizes={product.sizes}
-                // onSelectedSize={(size) => onSelectedSize(size)}
-                onSelectedSize={onSelectedSize}
-              />
-            </Box>
+                  {/* Add to cart */}
+                  {product.inStock > 0 ? (
+                     <Button color='secondary' className='circular-btn' onClick={onAddProduct}>
+                        {tempCartProduct.size ? 'Add to Cart' : 'Select a size'}
+                     </Button>
+                  ) : (
+                     <Chip color='error' label='Out of stock' variant='outlined' />
+                  )}
 
-            {/* Add to cart */}
-            {product.inStock > 0 ? (
-              <Button color='secondary' className='circular-btn' onClick={onAddProduct}>
-                {tempCartProduct.size ? 'Add to Cart' : 'Select a size'}
-              </Button>
-            ) : (
-              <Chip color='error' label='Out of stock' variant='outlined' />
-            )}
-
-            {/* Description */}
-            <Box sx={{ mt: 3 }}>
-              <Typography variant='subtitle2'>Description</Typography>
-              <Typography variant='body2'>{product.description}</Typography>
-            </Box>
-          </Box>
-        </Grid>
-      </Grid>
-    </ShopLayout>
-  );
+                  {/* Description */}
+                  <Box sx={{ mt: 3 }}>
+                     <Typography variant='subtitle2'>Description</Typography>
+                     <Typography variant='body2'>{product.description}</Typography>
+                  </Box>
+               </Box>
+            </Grid>
+         </Grid>
+      </ShopLayout>
+   );
 };
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-  const slugs = await dbProducts.getAllProductSlug();
+   const slugs = await dbProducts.getAllProductSlug();
 
-  return {
-    paths: slugs.map(({ slug }) => ({
-      params: { slug },
-    })),
-    fallback: 'blocking',
-  };
+   return {
+      paths: slugs.map(({ slug }) => ({
+         params: { slug },
+      })),
+      fallback: 'blocking',
+   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug = '' } = params as { slug: string };
+   const { slug = '' } = params as { slug: string };
 
-  const product = await dbProducts.getProductBySlug(slug);
+   const product = await dbProducts.getProductBySlug(slug);
 
-  if (!product) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
+   if (!product) {
+      return {
+         redirect: {
+            destination: '/',
+            permanent: false,
+         },
+      };
+   }
+
+   return {
+      props: {
+         product,
       },
-    };
-  }
-
-  return {
-    props: {
-      product,
-    },
-    revalidate: 86400, // Incremental Static Regeneration (ISR) - 24hs
-  };
+      revalidate: 86400, // Incremental Static Regeneration (ISR) - 24hs
+   };
 };
 
 /* Do not use ServerS ide Rendering

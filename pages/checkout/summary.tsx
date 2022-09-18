@@ -13,13 +13,17 @@ import { CartList, OrderSummary } from '../../components/cart';
 const SummaryPage = () => {
    const router = useRouter();
    // TODO: Traer la info de la base de datos en vez de Cookies
-   const { numberOfItems, shippingAddress } = useContext(CartContext);
+   const { numberOfItems, shippingAddress, createOrder } = useContext(CartContext);
 
    useEffect(() => {
       if (!Cookies.get('firstName')) {
          router.push('/checkout/address');
       }
    }, [router]);
+
+   const onCreateOrder = () => {
+      createOrder();
+   };
 
    if (!shippingAddress) {
       return <></>;
@@ -88,7 +92,11 @@ const SummaryPage = () => {
                      <OrderSummary />
 
                      <Box sx={{ mt: 3 }}>
-                        <Button color='secondary' className='circular-btn' fullWidth>
+                        <Button
+                           color='secondary'
+                           className='circular-btn'
+                           fullWidth
+                           onClick={onCreateOrder}>
                            Place Order
                         </Button>
                      </Box>

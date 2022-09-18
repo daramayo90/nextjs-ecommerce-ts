@@ -6,31 +6,31 @@ import { Product } from '../../../models';
 type Data = { message: string } | IProduct[];
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-  switch (req.method) {
-    case 'GET':
-      return getProducts(req, res);
+   switch (req.method) {
+      case 'GET':
+         return getProducts(req, res);
 
-    default:
-      return res.status(400).json({ message: 'Bad request' });
-  }
+      default:
+         return res.status(400).json({ message: 'Bad request' });
+   }
 }
 
 const getProducts = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
-  const { gender = 'all' } = req.query;
+   const { gender = 'all' } = req.query;
 
-  let condition = {};
+   let condition = {};
 
-  if (gender !== 'all' && SHOP_CONSTANTS.validGenders.includes(`${gender}`)) {
-    condition = { gender };
-  }
+   if (gender !== 'all' && SHOP_CONSTANTS.validGenders.includes(`${gender}`)) {
+      condition = { gender };
+   }
 
-  await db.connect();
+   await db.connect();
 
-  const products = await Product.find(condition)
-    .select('title images price inStock slug -_id')
-    .lean();
+   const products = await Product.find(condition)
+      .select('title images price inStock slug -_id')
+      .lean();
 
-  await db.disconnect();
+   await db.disconnect();
 
-  res.status(200).json(products);
+   res.status(200).json(products);
 };
