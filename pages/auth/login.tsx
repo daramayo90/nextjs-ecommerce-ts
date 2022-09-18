@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next';
-import { signIn, getSession } from 'next-auth/react';
+import { signIn, getSession, getProviders } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 
-import { Box, Button, Chip, Grid, Link, TextField, Typography } from '@mui/material';
+import { Box, Button, Chip, Divider, Grid, Link, TextField, Typography } from '@mui/material';
 import { ErrorOutline } from '@mui/icons-material';
 
 import { useForm } from 'react-hook-form';
@@ -19,12 +19,20 @@ type FormData = {
 
 const LoginPage = () => {
    const router = useRouter();
+
+   const [providers, setProviders] = useState<any>({});
    const [showError, setShowError] = useState(false);
    const {
       register,
       handleSubmit,
       formState: { errors },
    } = useForm<FormData>();
+
+   useEffect(() => {
+      getProviders().then((prov) => {
+         setProviders(prov);
+      });
+   }, []);
 
    const onLoginUser = async ({ email, password }: FormData) => {
       setShowError(false);
@@ -96,6 +104,25 @@ const LoginPage = () => {
                         passHref>
                         <Link underline='always'>Not a member yet?</Link>
                      </NextLink>
+                  </Grid>
+
+                  <Grid item xs={12} display='flex' flexDirection='column' justifyContent='center'>
+                     <Divider sx={{ width: '100%', mb: 2 }} />
+                     {Object.values(providers).map((provider: any) => {
+                        if (provider.id === 'credentials') return <div key='credentials'></div>;
+
+                        return (
+                           <Button
+                              key={provider.id}
+                              variant='outlined'
+                              color='primary'
+                              sx={{ mb: 1 }}
+                              fullWidth
+                              onClick={() => signIn(provider.id)}>
+                              {provider.name}
+                           </Button>
+                        );
+                     })}
                   </Grid>
                </Grid>
             </Box>
