@@ -1,7 +1,9 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 
 import { Typography, Grid, Card, CardContent, Divider, Box, Button, Link } from '@mui/material';
+import Cookies from 'js-cookie';
 
 import { countries } from '../../utils';
 import { CartContext } from '../../context';
@@ -9,8 +11,15 @@ import { ShopLayout } from '../../components/layouts';
 import { CartList, OrderSummary } from '../../components/cart';
 
 const SummaryPage = () => {
+   const router = useRouter();
    // TODO: Traer la info de la base de datos en vez de Cookies
    const { numberOfItems, shippingAddress } = useContext(CartContext);
+
+   useEffect(() => {
+      if (!Cookies.get('firstName')) {
+         router.push('/checkout/address');
+      }
+   }, [router]);
 
    if (!shippingAddress) {
       return <></>;
@@ -58,14 +67,14 @@ const SummaryPage = () => {
                      <Typography>
                         {firstName} {lastName}
                      </Typography>
+                     <Typography>{countries.find((c) => c.code === country)?.name}</Typography>
+                     <Typography>
+                        {city}, {zipcode}
+                     </Typography>
                      <Typography>
                         {address}
                         {address2 ? `, ${address2}` : ''}
                      </Typography>
-                     <Typography>
-                        {city}, {zipcode}
-                     </Typography>
-                     <Typography>{countries.find((c) => c.code === country)?.name}</Typography>
                      <Typography>{phone}</Typography>
 
                      <Divider sx={{ my: 1 }} />

@@ -23,6 +23,7 @@ export const authOptions: NextAuthOptions = {
          clientSecret: process.env.GITHUB_SECRET!,
       }),
       // ...add more providers here
+      // TODO: Agregar más providers
    ],
 
    // Custom Pages
