@@ -79,7 +79,10 @@ export const SideMenu = () => {
                   <ListItemText primary={'My Profile'} />
                </ListItem>
 
-               <ListItem button sx={{ display: isLoggedIn ? 'flex' : 'none' }}>
+               <ListItem
+                  button
+                  sx={{ display: isLoggedIn ? 'flex' : 'none' }}
+                  onClick={() => navigateTo('/orders/history')}>
                   <ListItemIcon>
                      <ConfirmationNumberOutlined />
                   </ListItemIcon>
