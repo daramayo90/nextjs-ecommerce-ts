@@ -1,7 +1,7 @@
 import { FC, ReactNode, useEffect, useReducer } from 'react';
 import Cookie from 'js-cookie';
 
-import { ICartProduct } from '../../interfaces';
+import { ICartProduct, ShippingAddress } from '../../interfaces';
 import { CartContext, cartReducer } from './';
 
 interface Props {
@@ -15,17 +15,6 @@ export interface CartState {
    tax: number;
    total: number;
    shippingAddress?: ShippingAddress;
-}
-
-export interface ShippingAddress {
-   firstName: string;
-   lastName: string;
-   address: string;
-   address2?: string;
-   zipcode: string;
-   city: string;
-   country: string;
-   phone: string;
 }
 
 const CART_INITIAL_STATE: CartState = {
