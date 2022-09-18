@@ -7,7 +7,6 @@ import { ErrorOutline } from '@mui/icons-material';
 
 import { useForm } from 'react-hook-form';
 
-import { frontApi } from '../../api';
 import { validations } from '../../utils';
 import { AuthLayout } from '../../components/layouts';
 import { AuthContext } from '../../context';
@@ -40,7 +39,8 @@ const RegisterPage = () => {
          return;
       }
 
-      router.replace('/');
+      const destination = router.query.page?.toString() || '/';
+      router.replace(destination);
    };
 
    return (
@@ -129,7 +129,7 @@ const RegisterPage = () => {
                   </Grid>
 
                   <Grid item xs={12} display='flex' justifyContent='center'>
-                     <NextLink href='/auth/login' passHref>
+                     <NextLink href={`/auth/login?page=${router.query.page?.toString()}`} passHref>
                         <Link underline='always'>Do you already have an account??</Link>
                      </NextLink>
                   </Grid>

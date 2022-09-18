@@ -74,7 +74,6 @@ export const AuthProvider: FC<Props> = ({ children }) => {
             const err = error as AxiosError;
             return {
                hasError: true,
-               //message: error.response?.data.message,
                message: err.message,
             };
          }

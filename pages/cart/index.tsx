@@ -1,40 +1,57 @@
+import { useContext, useEffect } from 'react';
 import { Card, CardContent, Divider, Grid, Typography, Box, Button } from '@mui/material';
 
+import { CartContext } from '../../context';
 import { CartList, OrderSummary } from '../../components/cart';
-import { ShopLayout } from '../../components/layouts/ShopLayout';
+import { ShopLayout } from '../../components/layouts';
+import { useRouter } from 'next/router';
 
 const CartPage = () => {
-  return (
-    <ShopLayout title={'Cart - 3'} pageDescription={'Shopping Cart'}>
-      <Typography variant='h1' component='h1'>
-        Cart
-      </Typography>
+   const router = useRouter();
+   const { isLoaded, cart } = useContext(CartContext);
 
-      <Grid container>
-        <Grid item xs={12} sm={7}>
-          <CartList editable />
-        </Grid>
+   useEffect(() => {
+      if (isLoaded && cart.length === 0) {
+         router.replace('/cart/empty');
+      }
+   }, [isLoaded, cart, router]);
 
-        <Grid item xs={12} sm={5}>
-          <Card className='summary-card'>
-            <CardContent>
-              <Typography variant='h2'>Order</Typography>
+   // Avoid render anything in client-side
+   if (!isLoaded || cart.length === 0) {
+      return <></>;
+   }
 
-              <Divider sx={{ my: 1 }} />
+   return (
+      <ShopLayout title={'Cart - 3'} pageDescription={'Shopping Cart'}>
+         <Typography variant='h1' component='h1'>
+            Cart
+         </Typography>
 
-              <OrderSummary />
+         <Grid container>
+            <Grid item xs={12} sm={7}>
+               <CartList editable />
+            </Grid>
 
-              <Box sx={{ mt: 3 }}>
-                <Button color='secondary' className='circular-btn' fullWidth>
-                  Checkout
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </ShopLayout>
-  );
+            <Grid item xs={12} sm={5}>
+               <Card className='summary-card'>
+                  <CardContent>
+                     <Typography variant='h2'>Order</Typography>
+
+                     <Divider sx={{ my: 1 }} />
+
+                     <OrderSummary />
+
+                     <Box sx={{ mt: 3 }}>
+                        <Button color='secondary' className='circular-btn' fullWidth>
+                           Checkout
+                        </Button>
+                     </Box>
+                  </CardContent>
+               </Card>
+            </Grid>
+         </Grid>
+      </ShopLayout>
+   );
 };
 
 export default CartPage;
