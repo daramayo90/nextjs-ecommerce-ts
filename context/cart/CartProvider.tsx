@@ -50,6 +50,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
       }
    }, []);
 
+   // TODO: Tomar la info de la base de datos
    useEffect(() => {
       if (Cookie.get('address')) {
          const shippingAddress = {
@@ -125,9 +126,27 @@ export const CartProvider: FC<Props> = ({ children }) => {
       dispatch({ type: '[Cart] - Remove Product', payload: products });
    };
 
+   const updateAddress = (address: ShippingAddress) => {
+      Cookie.set('firstName', address.firstName);
+      Cookie.set('lastName', address.lastName);
+      Cookie.set('address', address.address);
+      Cookie.set('address2', address.address2 || '');
+      Cookie.set('zipcode', address.zipcode);
+      Cookie.set('city', address.city);
+      Cookie.set('country', address.country);
+      Cookie.set('phone', address.phone);
+      dispatch({ type: '[Cart] - Update Shipping Address', payload: address });
+   };
+
    return (
       <CartContext.Provider
-         value={{ ...state, addProductToCart, updateCartQuantity, removeCartProduct }}>
+         value={{
+            ...state,
+            addProductToCart,
+            updateCartQuantity,
+            removeCartProduct,
+            updateAddress,
+         }}>
          {children}
       </CartContext.Provider>
    );

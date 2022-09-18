@@ -1,19 +1,12 @@
+import { useContext } from 'react';
 import { useRouter } from 'next/router';
 
 import { useForm } from 'react-hook-form';
 import Cookies from 'js-cookie';
 
-import {
-   Box,
-   Button,
-   FormControl,
-   Grid,
-   MenuItem,
-   Select,
-   TextField,
-   Typography,
-} from '@mui/material';
+import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 
+import { CartContext } from '../../context';
 import { countries } from '../../utils';
 import { ShopLayout } from '../../components/layouts';
 
@@ -28,6 +21,7 @@ type FormData = {
    phone: string;
 };
 
+//TODO: Tomar la información de la base de datos
 const getAddressFromCookies = (): FormData => {
    return {
       firstName: Cookies.get('firstName') || '',
@@ -43,6 +37,7 @@ const getAddressFromCookies = (): FormData => {
 
 const AddressPage = () => {
    const router = useRouter();
+   const { updateAddress } = useContext(CartContext);
 
    // TODO: Tomar la información de la base de datos en vez de las Cookies
    const {
@@ -55,15 +50,7 @@ const AddressPage = () => {
 
    // TODO: Grabar la información en la base de datos en vez de Cookies
    const onSubmitAddress = (data: FormData) => {
-      Cookies.set('firstName', data.firstName);
-      Cookies.set('lastName', data.lastName);
-      Cookies.set('address', data.address);
-      Cookies.set('address2', data.address2 || '');
-      Cookies.set('zipcode', data.zipcode);
-      Cookies.set('city', data.city);
-      Cookies.set('country', data.country);
-      Cookies.set('phone', data.phone);
-
+      updateAddress(data);
       router.push('/checkout/summary');
    };
 
@@ -153,10 +140,11 @@ const AddressPage = () => {
 
                <Grid item xs={12} sm={6}>
                   <TextField
+                     key={Cookies.get('country') || countries[0].code}
                      select
                      label='Country'
                      variant='filled'
-                     defaultValue={countries[1].code}
+                     defaultValue={Cookies.get('country') || countries[1].code} //TODO: Leer de la bd
                      fullWidth
                      error={!!errors.country}
                      helperText={errors.country?.message}
