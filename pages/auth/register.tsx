@@ -1,4 +1,6 @@
 import { useState, useContext } from 'react';
+import { GetServerSideProps } from 'next';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 
@@ -39,8 +41,10 @@ const RegisterPage = () => {
          return;
       }
 
-      const destination = router.query.page?.toString() || '/';
-      router.replace(destination);
+      // const destination = router.query.page?.toString() || '/';
+      // router.replace(destination);
+
+      await signIn('credentials', { email, password });
    };
 
    return (
@@ -138,6 +142,25 @@ const RegisterPage = () => {
          </form>
       </AuthLayout>
    );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+   const session = await getSession({ req });
+
+   const { page = '/' } = query;
+
+   if (session) {
+      return {
+         redirect: {
+            destination: page.toString(),
+            permanent: false,
+         },
+      };
+   }
+
+   return {
+      props: {},
+   };
 };
 
 export default RegisterPage;
