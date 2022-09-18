@@ -1,5 +1,7 @@
 import { FC, ReactNode, useEffect, useReducer } from 'react';
+
 import Cookie from 'js-cookie';
+import axios, { AxiosError } from 'axios';
 
 import { ICartProduct, IOrder, ShippingAddress } from '../../interfaces';
 import { CartContext, cartReducer } from './';
@@ -130,7 +132,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
       dispatch({ type: '[Cart] - Update Shipping Address', payload: address });
    };
 
-   const createOrder = async () => {
+   const createOrder = async (): Promise<{ hasError: boolean; message: string }> => {
       if (!state.shippingAddress) {
          throw new Error('Shipping address is missing');
       }
@@ -149,10 +151,27 @@ export const CartProvider: FC<Props> = ({ children }) => {
       };
 
       try {
-         const { data } = await frontApi.post('/orders', body);
-         console.log({ data });
+         const { data } = await frontApi.post<IOrder>('/orders', body);
+
+         dispatch({ type: '[Cart] - Order Complete' });
+
+         return {
+            hasError: false,
+            message: data._id!,
+         };
       } catch (error) {
-         console.log(error);
+         if (axios.isAxiosError(error)) {
+            const err = error as AxiosError;
+            return {
+               hasError: true,
+               message: err.message,
+            };
+         }
+
+         return {
+            hasError: true,
+            message: 'Uncontrolled error, talk to the admin',
+         };
       }
    };
 

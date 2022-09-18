@@ -57,6 +57,6 @@ const createOrder = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
    } catch (error) {
       await db.disconnect();
       console.log(error);
-      res.status(400).json({ message: 'Review server logs' });
+      res.status(400).json({ message: 'The total does not add up to the amount' });
    }
 };
