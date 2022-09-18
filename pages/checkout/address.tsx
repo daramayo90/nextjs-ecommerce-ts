@@ -1,4 +1,7 @@
-import { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
+
+import { useForm } from 'react-hook-form';
+import Cookies from 'js-cookie';
 
 import {
    Box,
@@ -11,62 +14,184 @@ import {
    Typography,
 } from '@mui/material';
 
+import { countries } from '../../utils';
 import { ShopLayout } from '../../components/layouts';
-import { jwt } from '../../utils';
+
+type FormData = {
+   firstName: string;
+   lastName: string;
+   address: string;
+   address2?: string;
+   zipcode: string;
+   city: string;
+   country: string;
+   phone: string;
+};
+
+const getAddressFromCookies = (): FormData => {
+   return {
+      firstName: Cookies.get('firstName') || '',
+      lastName: Cookies.get('lastName') || '',
+      address: Cookies.get('address') || '',
+      address2: Cookies.get('address2') || '',
+      zipcode: Cookies.get('zipcode') || '',
+      city: Cookies.get('city') || '',
+      country: Cookies.get('country') || '',
+      phone: Cookies.get('phone') || '', // TODO: Transformar el numero a string
+   };
+};
 
 const AddressPage = () => {
+   const router = useRouter();
+
+   // TODO: Tomar la información de la base de datos en vez de las Cookies
+   const {
+      register,
+      handleSubmit,
+      formState: { errors },
+   } = useForm<FormData>({
+      defaultValues: getAddressFromCookies(),
+   });
+
+   // TODO: Grabar la información en la base de datos en vez de Cookies
+   const onSubmitAddress = (data: FormData) => {
+      Cookies.set('firstName', data.firstName);
+      Cookies.set('lastName', data.lastName);
+      Cookies.set('address', data.address);
+      Cookies.set('address2', data.address2 || '');
+      Cookies.set('zipcode', data.zipcode);
+      Cookies.set('city', data.city);
+      Cookies.set('country', data.country);
+      Cookies.set('phone', data.phone);
+
+      router.push('/checkout/summary');
+   };
+
    return (
       <ShopLayout title={'Address'} pageDescription={'Confirm delivery address'}>
          <Typography variant='h1' component='h1'>
             Address
          </Typography>
 
-         <Grid container spacing={2} sx={{ mt: 2 }}>
-            <Grid item xs={12} sm={6}>
-               <TextField label='Name' variant='filled' fullWidth />
+         <form onSubmit={handleSubmit(onSubmitAddress)} noValidate>
+            <Grid container spacing={2} sx={{ mt: 2 }}>
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     label='Name'
+                     variant='filled'
+                     fullWidth
+                     error={!!errors.firstName}
+                     helperText={errors.firstName?.message}
+                     {...register('firstName', {
+                        required: 'Required field',
+                     })}
+                  />
+               </Grid>
+
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     label='Surname'
+                     variant='filled'
+                     fullWidth
+                     error={!!errors.lastName}
+                     helperText={errors.lastName?.message}
+                     {...register('lastName', {
+                        required: 'Required field',
+                     })}
+                  />
+               </Grid>
+
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     label='Address'
+                     variant='filled'
+                     fullWidth
+                     error={!!errors.address}
+                     helperText={errors.address?.message}
+                     {...register('address', {
+                        required: 'Required field',
+                     })}
+                  />
+               </Grid>
+
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     label='Address 2'
+                     variant='filled'
+                     fullWidth
+                     error={!!errors.address2}
+                     helperText={errors.address2?.message}
+                     {...register('address2')}
+                  />
+               </Grid>
+
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     label='Zip Code'
+                     variant='filled'
+                     fullWidth
+                     error={!!errors.zipcode}
+                     helperText={errors.zipcode?.message}
+                     {...register('zipcode', {
+                        required: 'Required field',
+                     })}
+                  />
+               </Grid>
+
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     label='City'
+                     variant='filled'
+                     fullWidth
+                     error={!!errors.city}
+                     helperText={errors.city?.message}
+                     {...register('city', {
+                        required: 'Required field',
+                     })}
+                  />
+               </Grid>
+
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     select
+                     label='Country'
+                     variant='filled'
+                     defaultValue={countries[1].code}
+                     fullWidth
+                     error={!!errors.country}
+                     helperText={errors.country?.message}
+                     {...register('country', {
+                        required: 'Required field',
+                     })}>
+                     {countries.map((country) => (
+                        <MenuItem key={country.code} value={country.code}>
+                           {country.name}
+                        </MenuItem>
+                     ))}
+                  </TextField>
+               </Grid>
+
+               <Grid item xs={12} sm={6}>
+                  <TextField
+                     label='Phone number'
+                     variant='filled'
+                     fullWidth
+                     error={!!errors.phone}
+                     helperText={errors.phone?.message}
+                     {...register('phone', {
+                        required: 'Required field',
+                        // valueAsNumber: true, TODO: Poner que solo sea numero
+                     })}
+                  />
+               </Grid>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
-               <TextField label='Surname' variant='filled' fullWidth />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-               <TextField label='Address' variant='filled' fullWidth />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-               <TextField label='Address 2 (optional)' variant='filled' fullWidth />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-               <TextField label='Postal code' variant='filled' fullWidth />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-               <TextField label='City' variant='filled' fullWidth />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-               <FormControl fullWidth>
-                  <Select variant='filled' label='Country' value={1}>
-                     <MenuItem value={1}>Costa Rica</MenuItem>
-                     <MenuItem value={2}>Honduras</MenuItem>
-                     <MenuItem value={3}>El Salvador</MenuItem>
-                     <MenuItem value={4}>Mexico</MenuItem>
-                  </Select>
-               </FormControl>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-               <TextField label='Phone number' variant='filled' fullWidth />
-            </Grid>
-         </Grid>
-
-         <Box sx={{ mt: 5 }} display='flex' justifyContent='center'>
-            <Button color='secondary' className='circular-btn' size='large'>
-               Finish order
-            </Button>
-         </Box>
+            <Box sx={{ mt: 5 }} display='flex' justifyContent='center'>
+               <Button type='submit' color='secondary' className='circular-btn' size='large'>
+                  Finish order
+               </Button>
+            </Box>
+         </form>
       </ShopLayout>
    );
 };
