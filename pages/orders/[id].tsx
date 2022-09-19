@@ -112,11 +112,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
       };
    }
 
-   console.log('ID', id);
-
    const order = await dbOrders.getOrderById(id.toString());
-
-   console.log('ORDER', order);
 
    if (!order) {
       return {
