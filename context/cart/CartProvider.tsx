@@ -155,6 +155,8 @@ export const CartProvider: FC<Props> = ({ children }) => {
 
          dispatch({ type: '[Cart] - Order Complete' });
 
+         Cookie.remove('cart');
+
          return {
             hasError: false,
             message: data._id!,
