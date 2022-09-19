@@ -5,7 +5,6 @@ import { CartContext } from '../../context';
 import { Grid, Typography } from '@mui/material';
 
 import { currency } from '../../utils';
-import { IOrder } from '../../interfaces';
 
 interface Props {
    orderValues?: {

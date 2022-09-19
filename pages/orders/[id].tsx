@@ -1,21 +1,60 @@
+import { useState } from 'react';
 import { GetServerSideProps, NextPage } from 'next';
 import { getSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { PayPalButtons } from '@paypal/react-paypal-js';
 
-import { Typography, Grid, Card, CardContent, Link, Divider, Box, Chip } from '@mui/material';
+import {
+   Typography,
+   Grid,
+   Card,
+   CardContent,
+   Divider,
+   Box,
+   Chip,
+   CircularProgress,
+} from '@mui/material';
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
 
 import { ShopLayout } from '../../components/layouts';
 import { CartList, OrderSummary } from '../../components/cart';
 import { dbOrders } from '../../database';
 import { IOrder } from '../../interfaces';
+import frontApi from '../../api/frontApi';
+
+export type OrderResponseBody = {
+   id: string;
+   status: 'COMPLETED' | 'SAVED' | 'APPROVED' | 'VOIDED' | 'PAYER_ACTION_REQUIRED';
+};
 
 interface Props {
    order: IOrder;
 }
 
 const OrderPage: NextPage<Props> = ({ order }) => {
+   const router = useRouter();
    const { shippingAddress } = order;
+   const [isPaying, setIsPaying] = useState(false);
+
+   const onOrderCompleted = async (details: OrderResponseBody) => {
+      if (details.status !== 'COMPLETED') return alert('There is no payment in PayPal');
+
+      setIsPaying(true);
+
+      try {
+         const { data } = await frontApi.post(`/orders/payment`, {
+            transactionId: details.id,
+            orderId: order._id,
+         });
+
+         router.reload();
+      } catch (error) {
+         console.log(error);
+         setIsPaying(false);
+         alert('Error');
+      }
+   };
+
    return (
       <ShopLayout title={'Summary of the order 1231435435'} pageDescription={'Summary order'}>
          <Typography variant='h1' component='h1'>
@@ -78,36 +117,49 @@ const OrderPage: NextPage<Props> = ({ order }) => {
                      <OrderSummary orderValues={order} />
 
                      <Box sx={{ mt: 3 }} display='flex' flexDirection='column'>
-                        {order.isPaid ? (
-                           <Chip
-                              sx={{ my: 2 }}
-                              label='Paid out'
-                              variant='outlined'
-                              color='success'
-                              icon={<CreditScoreOutlined />}
-                           />
-                        ) : (
-                           <PayPalButtons
-                              createOrder={(data, actions) => {
-                                 return actions.order.create({
-                                    purchase_units: [
-                                       {
-                                          amount: {
-                                             value: order.total.toString(),
+                        <Box
+                           display='flex'
+                           justifyContent='center'
+                           className='fadeIn'
+                           sx={{ display: isPaying ? 'flex' : 'none' }}>
+                           <CircularProgress />
+                        </Box>
+
+                        <Box
+                           sx={{ display: isPaying ? 'none' : 'flex', flex: 1 }}
+                           flexDirection='column'>
+                           {order.isPaid ? (
+                              <Chip
+                                 sx={{ my: 2 }}
+                                 label='Paid out'
+                                 variant='outlined'
+                                 color='success'
+                                 icon={<CreditScoreOutlined />}
+                              />
+                           ) : (
+                              <PayPalButtons
+                                 createOrder={(data, actions) => {
+                                    return actions.order.create({
+                                       purchase_units: [
+                                          {
+                                             amount: {
+                                                value: order.total.toString(),
+                                             },
                                           },
-                                       },
-                                    ],
-                                 });
-                              }}
-                              onApprove={(data, actions) => {
-                                 return actions.order!.capture().then((details) => {
-                                    console.log(details); // "44C435368Y744680S"
-                                    const name = details.payer.name!.given_name;
-                                    //alert(`Transaction completed by ${name}`);
-                                 });
-                              }}
-                           />
-                        )}
+                                       ],
+                                    });
+                                 }}
+                                 onApprove={(data, actions) => {
+                                    return actions.order!.capture().then((details) => {
+                                       onOrderCompleted(details);
+                                       // console.log(details);  "44C435368Y744680S"
+                                       // const name = details.payer.name!.given_name;
+                                       //alert(`Transaction completed by ${name}`);
+                                    });
+                                 }}
+                              />
+                           )}
+                        </Box>
                      </Box>
                   </CardContent>
                </Card>
