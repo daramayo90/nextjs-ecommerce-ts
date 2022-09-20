@@ -43,6 +43,18 @@ export const getProductsByTerm = async (searchTerm: string): Promise<IProduct[]>
    return products;
 };
 
+export const getProductsByGender = async (gender: string): Promise<IProduct[]> => {
+   await db.connect();
+
+   const products = await Product.find({ gender })
+      .select('title images price inStock slug -_id')
+      .lean();
+
+   await db.disconnect();
+
+   return products;
+};
+
 export const getAllProducts = async (): Promise<IProduct[]> => {
    await db.connect();
 

@@ -29,7 +29,7 @@ const MenPage: NextPage<Props> = ({ products }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
-   const products = await dbProducts.getAllProducts();
+   const products = await dbProducts.getProductsByGender('men');
 
    return {
       props: { products },

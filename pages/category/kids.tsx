@@ -31,7 +31,7 @@ const KidsPage: NextPage<Props> = ({ products }) => {
 };
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
-   const products = await dbProducts.getAllProducts();
+   const products = await dbProducts.getProductsByGender('kid');
 
    return {
       props: { products },
