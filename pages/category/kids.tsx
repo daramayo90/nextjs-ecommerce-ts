@@ -1,13 +1,18 @@
+import type { NextPage } from 'next';
+import type { GetStaticProps } from 'next';
+
 import { Typography } from '@mui/material';
 
+import { dbProducts } from '../../database';
 import { ShopLayout } from '../../components/layouts';
 import { ProductList } from '../../components/products';
-import { FullScreenLoading } from '../../components/ui';
-import { useProducts } from '../../hooks';
+import { IProduct } from '../../interfaces/products';
 
-const KidsPage = () => {
-   const { products, isLoading } = useProducts('/products?gender=kid');
+interface Props {
+   products: IProduct[];
+}
 
+const KidsPage: NextPage<Props> = ({ products }) => {
    return (
       <ShopLayout
          title={'My Ecommerce - Kids'}
@@ -20,9 +25,17 @@ const KidsPage = () => {
             Kids Products
          </Typography>
 
-         {isLoading ? <FullScreenLoading /> : <ProductList products={products} />}
+         <ProductList products={products} />
       </ShopLayout>
    );
+};
+
+export const getStaticProps: GetStaticProps = async (ctx) => {
+   const products = await dbProducts.getAllProducts();
+
+   return {
+      props: { products },
+   };
 };
 
 export default KidsPage;

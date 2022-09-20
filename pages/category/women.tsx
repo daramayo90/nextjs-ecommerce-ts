@@ -1,28 +1,41 @@
+import type { NextPage } from 'next';
+import type { GetStaticProps } from 'next';
+
 import { Typography } from '@mui/material';
 
+import { dbProducts } from '../../database';
 import { ShopLayout } from '../../components/layouts';
 import { ProductList } from '../../components/products';
-import { FullScreenLoading } from '../../components/ui';
-import { useProducts } from '../../hooks';
+import { IProduct } from '../../interfaces/products';
 
-const WomenPage = () => {
-  const { products, isLoading } = useProducts('/products?gender=women');
+interface Props {
+   products: IProduct[];
+}
 
-  return (
-    <ShopLayout
-      title={'My Ecommerce - Women'}
-      pageDescription={'Find the best women products here'}>
-      <Typography variant='h1' component='h1'>
-        Women
-      </Typography>
+const WomenPage: NextPage<Props> = ({ products }) => {
+   return (
+      <ShopLayout
+         title={'My Ecommerce - Women'}
+         pageDescription={'Find the best women products here'}>
+         <Typography variant='h1' component='h1'>
+            Women
+         </Typography>
 
-      <Typography variant='h2' sx={{ mb: 1 }}>
-        Women Products
-      </Typography>
+         <Typography variant='h2' sx={{ mb: 1 }}>
+            Women Products
+         </Typography>
 
-      {isLoading ? <FullScreenLoading /> : <ProductList products={products} />}
-    </ShopLayout>
-  );
+         <ProductList products={products} />
+      </ShopLayout>
+   );
+};
+
+export const getStaticProps: GetStaticProps = async (ctx) => {
+   const products = await dbProducts.getAllProducts();
+
+   return {
+      props: { products },
+   };
 };
 
 export default WomenPage;
